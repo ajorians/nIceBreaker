@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=IceBreaker
+Type=Application
+Comment=%{Summary}
+Exec=icebreaker
+Icon=/usr/share/icebreaker/icebreaker_48.bmp
+Terminal=0

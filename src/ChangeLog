@@ -1,0 +1,62 @@
+July 30, 2001: released v1.2.1
+  - fixed minor bug where highest-score line cut off letters that dip below
+    the baseline (gjpqy...). Thanks to Jonathan DePrizio for catching this.
+  - tiny little bugfixes, makefile cleanup
+  - switched to much more sensible linux-kernel-style numbering scheme.
+    (n.oddnumber.n for development releases, and n.evenumber.n for
+    stable "production" releases -- for example, 1.2.1 is a stable release,
+    so any excitement/surprises should come from the game, not from
+    bugs. 1.9.0 will be a devel release, and some features may not work
+    completely, or at all.)
+
+July 28, 2001: released v1.2
+  - added "score decay" timer, to discourage obsessive-compulsive types from
+    taking hours on one level. Sure, I want you to be obsessed with the
+    game, but have fun playing, not tediously waiting. :)
+  - added easy and hard difficulty settings
+  - added options for sound
+  - added option for auto pause (which makes the game stop when the window
+    loses focus -- note that it always pauses when minimized regardless of
+    this setting).
+  - now, when a line is stuck (against another line) for a long time,
+    the line completes instead of exploding. ("A long time" == approximately
+    5 seconds)
+  - merged in Enrico Tassi's win32 compatibility stuff -- win32 version
+    is now completely functional, except:
+  - added fullscreen option! (Unfortunately, still has problems in Win32,
+    so you'll have to edit the icebreaker.cfg manually if you want to enable
+    this feature on a MS Windows system. I'll get the problem figured out
+    for a future release.)
+  - fixed busy waits in dialog.c (thanks again to Enrico)
+  - code cleanup
+
+July 23, 2001: released v1.1
+  - added man page
+  - tiny change to error message when high score file can't be read
+
+July 18, 2001: released v1.09
+  - Gameplay change: changed behavior when a line hits another
+    partially-completed line -- now, instead of the line completing
+    successfully, it waits until the other completes or is destroyed.  In
+    the event that neither of those happens after a little while, new line
+    dies. (I've considered making it complete successfully in this case;
+    opinions, anyone?) This change makes the game much harder, in a good way.
+  - moved center of vertical cursor to proper location (oops)
+  - modified high score code to reread from disk, so that multiple players
+    on the same system don't cause confusion. A race condition still exists,
+    but it's much narrower. :) A future version will have proper locking.
+  - include fix for cmpscore bug thanks to Enrico Tassi
+    <f.tassi@mo.nettuno.it>
+
+October 5, 2000: released v1.0
+  - one-point-oh!
+
+October 3, 2000: released v0.995
+  - minor cosmetic fixes
+  - made 'make install' work; made it easier to redefine file locations
+  - made it so three-decimal-place version numbers work :)
+  - made level 100 loop forever instead of just ending the game there. 
+    not that level 100 is any fun, really -- too many penguins!
+
+October 2, 2000: released v0.98
+  - first public release

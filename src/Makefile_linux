@@ -1,0 +1,119 @@
+CC=gcc
+
+SDLCONFIG=sdl-config
+
+ifndef prefix
+  prefix=/usr/local
+  #prefix=/usr
+endif
+
+ifndef datadir
+  datadir=$(prefix)/share
+endif
+
+ifndef mandir
+  mandir=$(prefix)/share/man
+endif
+
+ifndef highscoredir
+  highscoredir=/var/local/lib/games
+  #highscoredir=/var/lib/games
+endif
+
+ifndef OPTIMIZE
+#  OPTIMIZE=-O3
+endif
+
+CFLAGS=-Wall $(OPTIMIZE) $(SDL_CFLAGS) -DDATAPREFIX=\"$(datadir)/icebreaker\" -DHISCOREPREFIX=\"$(highscoredir)\"
+
+SRC=icebreaker.c cursor.c grid.c laundry.c line.c penguin.c sound.c \
+    level.c intro.c text.c status.c transition.c hiscore.c dialog.c \
+    options.c fullscreen.c
+
+SDL_MIXER=-lSDL_mixer
+SDL_LIB=$(SDL_LDFLAGS) $(SDL_MIXER) 
+SDL_CFLAGS := $(shell $(SDLCONFIG) --cflags)
+SDL_LDFLAGS := $(shell $(SDLCONFIG) --libs)
+VERSION := $(shell awk '/^\#define VERSION/ { print $$3 }' icebreaker.h)
+VERDATE := $(shell date -r icebreaker.h +"%d %B %Y")
+
+ifneq ($(VERSION),$(shell awk '/^Version:/ { print $$2 }' icebreaker.spec))
+  $(error "Version in spec file doesn't match version in icebreaker.h!")
+endif
+
+
+
+all:	icebreaker man
+
+clean:
+	rm -f icebreaker
+	rm -f icebreaker.6
+	rm -f *.o
+	rm -f *.d
+	rm -f *.tgz
+	rm -f *.zip
+	rm -f *.exe
+
+
+dist: clean ChangeLog
+	[ -d icebreaker-$(VERSION) ] && rm -rf icebreaker-$(VERSION) || true
+	mkdir icebreaker-$(VERSION)
+	cp -p * icebreaker-$(VERSION) || true
+	tar czf icebreaker-$(VERSION).tgz icebreaker-$(VERSION)
+	[ -d icebreaker-$(VERSION) ] && rm -rf icebreaker-$(VERSION) || true
+	tar tzf icebreaker-$(VERSION).tgz
+
+win32: icebreaker-$(VERSION).zip
+
+icebreaker.exe: icebreaker
+	[ -d win32.build ] && rm -rf win32.build || true
+	mkdir win32.build
+	cp -p * win32.build || true
+	(cd win32.build; make clean; make -f Makefile.w32; mv icebreaker.exe ..)
+	[ -d win32.build ] && rm -rf win32.build || true
+
+icebreaker-$(VERSION).zip: icebreaker.exe
+	[ -d icebreaker-$(VERSION) ] && rm -rf icebreaker-$(VERSION) || true
+	mkdir icebreaker-$(VERSION)
+	cp icebreaker.exe icebreaker-$(VERSION)
+	cp /usr/local/cross-tools/i386-mingw32msvc/lib/SDL.dll icebreaker-$(VERSION)
+	cp /usr/local/cross-tools/i386-mingw32msvc/lib/SDL_mixer.dll icebreaker-$(VERSION)
+	cp *.wav icebreaker-$(VERSION)
+	cp *.bmp icebreaker-$(VERSION)
+	unix2dos -n ChangeLog icebreaker-$(VERSION)/ChangeLog.txt
+	unix2dos -n LICENSE icebreaker-$(VERSION)/LICENSE.txt
+	unix2dos -n README icebreaker-$(VERSION)/README.txt
+	unix2dos -n TODO icebreaker-$(VERSION)/TODO.txt
+	zip -r icebreaker-$(VERSION).zip icebreaker-$(VERSION)
+	[ -d icebreaker-$(VERSION) ] && rm -rf icebreaker-$(VERSION) || true
+	unzip -t icebreaker-$(VERSION).zip
+
+%.d: %.c
+	set -e; $(CC) -M $(CFLAGS) $< \
+           | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+           [ -s $@ ] || rm -f $@
+
+icebreaker:	$(SRC:.c=.o)
+	$(CC) $(CFLAGS) $^ -o icebreaker $(SDL_LIB)
+
+man: icebreaker.6
+
+%.6: %.man.in
+	sed 's/\$$VERSION/$(VERSION)/' $< | \
+	   sed 's/\$$VERDATE/$(VERDATE)/' > $@
+
+install: all
+	mkdir -p $(prefix)/bin
+	mkdir -p $(prefix)/share/icebreaker
+	mkdir -p $(highscoredir)
+	mkdir -p $(mandir)/man6
+
+	install -m 644 *.wav *.bmp $(prefix)/share/icebreaker
+	install -g games -s -m 2755 icebreaker $(prefix)/bin
+	install -m 644 icebreaker.6 $(mandir)/man6
+	touch $(highscoredir)/icebreaker.scores
+	chown games:games $(highscoredir)/icebreaker.scores
+	chmod 664 $(highscoredir)/icebreaker.scores
+
+
+include $(SRC:.c=.d)

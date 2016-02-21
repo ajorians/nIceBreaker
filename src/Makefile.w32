@@ -1,0 +1,57 @@
+# standard path for mingw32 cross compiler
+# see <http://www.libsdl.org/Xmingw32/>
+CROSSTOOLSPATH=/usr/local/cross-tools
+MINGW32BIN=$(CROSSTOOLSPATH)/bin
+
+CC=$(MINGW32BIN)/i386-mingw32msvc-gcc
+WINDRES=$(MINGW32BIN)/i386-mingw32msvc-windres
+
+SDLCONFIG=$(CROSSTOOLSPATH)/i386-mingw32msvc/bin/sdl-config
+
+ifndef OPTIMIZE
+  OPTIMIZE=-O3
+endif
+
+CFLAGS=-Wall $(OPTIMIZE) $(SDL_CFLAGS) -DDATAPREFIX=\".\" -DHISCOREPREFIX=\".\" -DWIN32
+
+SRC=icebreaker.c cursor.c grid.c laundry.c line.c penguin.c sound.c \
+    level.c intro.c text.c status.c transition.c hiscore.c dialog.c \
+    options.c fullscreen.c win32_compatibility.c
+
+RES=win32_resources.rc
+
+SDL_MIXER=-lSDL_mixer
+SDL_LIB=$(SDL_LDFLAGS) $(SDL_MIXER) 
+SDL_CFLAGS := $(shell $(SDLCONFIG) --cflags)
+SDL_LDFLAGS := $(shell $(SDLCONFIG) --libs)
+
+
+all:	icebreaker.exe
+
+clean:
+	rm -f icebreaker
+	rm -f icebreaker.6
+	rm -f *.o
+	rm -f *.d
+	rm -f *.tgz
+	rm -f *.zip
+	rm -f *.exe
+
+%.d: %.c
+	set -e; $(CC) -M $(CFLAGS) $< \
+           | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+           [ -s $@ ] || rm -f $@
+
+%.o:%.rc
+	$(WINDRES) $< $(subst .rc,.o,$<)
+       
+%.o:%.c
+	$(CC) -c $< $(CPPFLAGS) $(CFLAGS)   
+
+
+icebreaker.exe:	$(SRC:.c=.o) $(RES:.rc=.o)
+	$(CC) $(CFLAGS) $^ -o $@ $(SDL_LIB)
+
+
+
+include $(SRC:.c=.d)

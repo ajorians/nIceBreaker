@@ -1,0 +1,30 @@
+Some of this is work in progress, and some it is just stuff I'd like to see.
+Check out <http://www.mattdm.org/icebreaker/development.shtml> for details.
+
+* innumerable sections of the code are marked with "FIX", in places where I
+  know I did something messy, foolish, or inefficient.
+* there are likely other bits of messiness, foolishness, and inefficiency
+  which I haven't realized are there
+* this is part of the above, but bears mentioning separately: some of the
+  code is the product of late-night hacking and, while it works fine,
+  desperately needs cleaning up
+
+* clean up fullscreen mode in win32
+* need titlebar-equivalent in fullscreen mode, so one can see the current
+  level.
+* the sounds are totally borrowed from other people. need original ones.
+* add command line options
+* add keyboard support
+* option to turn off scrolling level-end text
+* make GNOME/KDE versions?
+* the animation is really jerky with some refresh rates. what to do about
+  this? last time I wrote a game was under DOS, and you could easily
+  sync to the vertical refresh.....
+* check for high scores on 'quit'
+* fix race condition in readhiscore()/checkhiscore()/addhiscore() -- 
+  add lock file
+* there is a little bug where in certain situations you can start an
+  opposing line directly in the path of an oncoming line, causing lines 
+  which are essentially on top of each other. Not a terribly fatal flaw,
+  but I'm going to fix it sometime. :)
+* skins -- FreeBSD, etc.
